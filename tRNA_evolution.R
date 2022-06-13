@@ -131,6 +131,9 @@ totalIsotypeCounts <-
     interactive = FALSE,
     use.label = TRUE
   ) +
+  # geom_text(label = '10',nudge_y = 5) +
+  # geom_text() +
+  # geom_label(aes(group = species),label='te')+
   theme(axis.text.x = element_text(size = 10)) +
   # scale_fill_manual(values = rep(mycolor, nrow(totalWideIstoypeCounts))) +
   scale_color_manual(values = lacroix_palette("Apricot", n = 15, type = "continuous")) +
@@ -165,6 +168,8 @@ pca_res <- prcomp(distanceWideIsotypeCounts, scale. = T)
 distanceWideIsotypeCounts2 <- rownames_to_column(as.data.frame(distanceWideIsotypeCounts), var = 'Species')
 distanceWideIsotypeCounts2$species <- as.factor(distanceWideIsotypeCounts2$species)
 
+# library(cluster)
+
 pcaPlotDistanceWideIsotypeCounts <-
   autoplot(
     pca_res,
@@ -172,7 +177,8 @@ pcaPlotDistanceWideIsotypeCounts <-
     colour = 'Species',
     label = T,
     label.vjust = 1.2,
-    frame = T,
+    # frame = T,
+    # frame.type = 'norm',
     legend = F
   ) +
   theme(legend.position = 'none') +
@@ -232,6 +238,28 @@ totalWideAnticodons <-
   full_join(Sleb.wideAnticodons) %>%
   replace(is.na(.), 0)
 
+totalWideAnticodons$species = factor(
+  totalWideAnticodons$species,
+  levels = c(
+    'Dmel',
+    'Dsim',
+    'Dore',
+    'Dere',
+    'Dyak',
+    'Dana',
+    'Dpse',
+    'Dper',
+    'Dazt',
+    'Dwil',
+    'Dvir',
+    'Dnov',
+    'Dmoj',
+    'Dhyd',
+    'Sleb'
+  )
+)
+# reorder to match phylogeny
+
 totalAnticodons <-
   ggRadar(
     totalWideAnticodons,
@@ -242,14 +270,50 @@ totalAnticodons <-
     interactive = FALSE,
     use.label = TRUE
   ) +
+  # ylim(0,20) +
   theme(axis.text.x = element_text(size = 10)) +
   scale_color_manual(values = lacroix_palette("Apricot", n = 15, type = "continuous")) +
   # LaCroix! :)
   ggtitle("Number of anticodons used in tRNA genes per isotype in 15 Drosophila species") +
-  facet_wrap( ~ species, nrow=3)
+  facet_wrap( ~ species, nrow = 3)
 totalAnticodons
 
 ggsave(totalAnticodons, filename = '/Users/dylan/Library/Mobile Documents/com~apple~CloudDocs/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/totalAnticodons.png',width = 30,height = 30)
+
+##########
+#testing to improve resolution of figure 
+
+# Dore_changed_AGT_value_wideAnticodo <- totalWideAnticodons
+# Dore_changed_AGT_value_wideAnticodo$AGT[8] <- 22
+# oops, accidentally overwrote the value 
+
+# Dore_changed_AGT_value_wideAnticodo <-
+#   ggRadar(
+#     Dore_changed_AGT_value_wideAnticodo,
+#     aes(group = species),
+#     rescale = FALSE,
+#     legend.position = "none",
+#     size = 2,
+#     interactive = FALSE,
+#     use.label = TRUE
+#   ) +
+#   # ylim(0,20) +
+#   theme(axis.text.x = element_text(size = 10)) +
+#   scale_color_manual(values = lacroix_palette("Apricot", n = 15, type = "continuous")) +
+#   # LaCroix! :)
+#   ggtitle("Number of anticodons used in tRNA genes per isotype in 15 Drosophila species") +
+#   facet_wrap( ~ species, nrow = 3)
+# Dore_changed_AGT_value_wideAnticodo
+# 
+# # ggsave(Dore_changed_AGT_value_wideAnticodo, filename = '/Users/dylan/Library/Mobile Documents/com~apple~CloudDocs/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/Dore_changed_AGT_value_wideAnticodo.png',width = 30,height = 30)
+# ggsave(Dore_changed_AGT_value_wideAnticodo, filename = '/Users/dylansosa/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/resolution_testing/Dore_changed_AGT_value_wideAnticodo.png',width = 30,height = 30)
+# ggsave(totalAnticodons, filename = '/Users/dylansosa/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/resolution_testing/totalAnticodons.png',width = 30,height = 30)
+# # totalAnticodons
+
+
+
+#testing to improve resolution of figure 
+##########
 
 radarPlotsForAnticodons <- function(speciesFile) {
   x <- deparse(substitute(speciesFile))
@@ -264,7 +328,9 @@ radarPlotsForAnticodons <- function(speciesFile) {
       interactive = FALSE,
       use.label = TRUE
     ) +
-    theme(axis.text.x = element_text(size = 10)) +
+    theme(axis.text.x = element_text(size = 12)) +
+    theme(axis.text.y = element_text(size = 16)) +
+    theme(title = element_text(size = 16)) +
     scale_color_manual(values = lacroix_palette("Apricot", n = 15, type = "continuous")) +
     ggtitle(paste("Number of anticodons used in",x))
 }
@@ -289,7 +355,7 @@ Sleb.anticodonRadarPlot <- radarPlotsForAnticodons(Sleb)
 saveAnticodonRadarPlots <- function(radar) {
   x <- deparse(substitute(radar))
   # print(radar)
-  ggsave(radar, filename = paste0('/Users/dylan/Library/Mobile Documents/com~apple~CloudDocs/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/',x,'.png'))
+  ggsave(radar, filename = paste0('/Users/dylansosa/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/tRNA figures/individual anticodon plots/',x,'.png'))
 }
 
 # cat te | cut -f 1 -d ' ' | sed s'/^/saveAnticodonRadarPlots(/' | sed s'/$/)/'
@@ -309,6 +375,30 @@ saveAnticodonRadarPlots(Dwil.anticodonRadarPlot)
 saveAnticodonRadarPlots(Dyak.anticodonRadarPlot)
 saveAnticodonRadarPlots(Sleb.anticodonRadarPlot)
 
+fourSpeciesAnticodon <- grid.arrange(Dmel.anticodonRadarPlot, Dsim.anticodonRadarPlot,Dore.anticodonRadarPlot,Dere.anticodonRadarPlot,ncol=2)
+twoSpeciesAnticodon <- grid.arrange(Dore.anticodonRadarPlot,Dere.anticodonRadarPlot,ncol=2)
+# I think this is the best way to display several (not all) anticodon plots
+ggsave(twoSpeciesAnticodon, filename = '/Users/dylansosa/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/tRNA figures/multi_codon_plot/twoSpeciesAnticodon.png',width = 30,height = 30)
+
+
+# grid.arrange(Dmel.anticodonRadarPlot,
+#              Dsim.anticodonRadarPlot,
+#              Dore.anticodonRadarPlot,
+#              Dere.anticodonRadarPlot,
+#              Dyak.anticodonRadarPlot,
+#              Dana.anticodonRadarPlot,
+#              Dpse.anticodonRadarPlot,
+#              Dper.anticodonRadarPlot,
+#              Dazt.anticodonRadarPlot,
+#              Dwil.anticodonRadarPlot,
+#              Dvir.anticodonRadarPlot,
+#              Dnov.anticodonRadarPlot,
+#              Dmoj.anticodonRadarPlot,
+#              Dhyd.anticodonRadarPlot,
+#              Sleb.anticodonRadarPlot,
+#              ncol=5
+#              )
+
 #######
 ### How many anticodons are used?
 #######
@@ -317,7 +407,179 @@ anticodonsUsedByDrosophilids <-
   select(!(species)) %>%
   colnames(.) %>% 
   sort(.) 
+anticodonsUsedByDrosophilids
+length(anticodonsUsedByDrosophilids)
+# 51 anticodons used amongst the 15 drosophila species 
 
+
+######
+### Joining total anticodons with count table to make plot of percentage used 
+#####
+
+anticodons_64 <- read.csv('anticodons_64.txt', header = F)
+rownames(anticodons_64) <- pull(anticodons_64)
+anticodons_64 <- 
+  anticodons_64 %>% 
+  t() %>% 
+  as_tibble()
+anticodons_64[,] <- NA
+# preparing format for joining 
+anticodons_64
+
+wide64Anticodons <- 
+  full_join(totalWideAnticodons,anticodons_64) %>% 
+  slice(.,1:15) %>% 
+  replace(is.na(.), 0) 
   
+# now in the same format as the totalWide* variables
+
+wide64Anticodons <-
+  wide64Anticodons %>% 
+  mutate(totalAnticodons = rowSums(across(where(is.numeric)))) %>% 
+  relocate(totalAnticodons,.before = AGC)
+# now have column with total anticodons per species
+# I can use this during plotting to get percentages per anticodon
+
+# ggplot(wide64Anticodons) +
+  # geom_point(aes(x = group(),y = Dmel))
+
+# library(reshape2)
+# z <- melt(wide64Anticodons, id.vars="species")%>% filter(species == 'Dmel') 
+
+# totalDmel_anti <- wide64Anticodons[5,"totalAnticodons"]
+
+# zz <- z %>% filter(variable!='totalAnticodons') %>% rowwise() %>% mutate(percentage = ((value/totalDmel_anti)))
+
+# may need a function to do this for each species if I want them to all be plotted together
+# currently this is just Dmel
+# 
+# ggplot(zz,aes(reorder(variable, percentage$totalAnticodons),percentage$totalAnticodons)) +
+#   geom_point() +
+#   theme(axis.text.x = element_text(angle = 70, vjust = 0.5, hjust=1))
+
+# Dpse.wideAnticodons %>% 
+#   select(-species) %>% 
+#   full_join(.,anticodons_64) %>% 
+#   slice(.,1) %>% 
+#   replace(is.na(.),0) %>% 
+#   rowwise(.) %>% 
+#   sum()
+  # mutate(total = rowwise(.) %>% sum())
+# this gives me the total anticodons, after transformation the unused ones to 0, make column with total anticodons 'total'
+
+Dpse$`Total tRNA genes`[1]
+# I can just use this per species to get the total
+
+# Dpse.wideAnticodons %>%
+#   select(-species) %>%
+#   full_join(.,anticodons_64) %>%
+#   slice(.,1) %>%
+#   replace(is.na(.),0) %>%
+#   t() %>% 
+#   as.data.frame() %>% 
+#   mutate(percentage = V1/Dpse$`Total tRNA genes`[1]) %>% 
+#   rownames_to_column()
+# # change colnames later
+
+# ggplot(Dpse.wideAnticodons %>%
+#          select(-species) %>%
+#          full_join(.,anticodons_64) %>%
+#          slice(.,1) %>%
+#          replace(is.na(.),0) %>%
+#          t() %>%
+#          as.data.frame() %>%
+#          mutate(percentage = V1/Dpse$`Total tRNA genes`[1]) %>%
+#          rownames_to_column(),
+#        aes(x=reorder(rowname,percentage),y=percentage)) +
+#   geom_point() +
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+#   labs(title = 'Anticodon usage in Dpse') +
+#   xlab(label = 'Anticodon') +
+#   ylab(label = 'Percentage of total tRNA genes')
+
+scatterPlotsForAnticodonPercentages <- function(speciesFile) {
+    x <- deparse(substitute(speciesFile))
+      ggplot(eval(parse(text=paste0(x,'.wideAnticodons'))) %>%
+               select(-species) %>%
+               full_join(.,anticodons_64) %>%
+               slice(.,1) %>%
+               replace(is.na(.),0) %>%
+               t() %>%
+               as.data.frame() %>%
+               mutate(percentage = V1/Dpse$`Total tRNA genes`[1]) %>%
+               rownames_to_column(),
+             aes(x=reorder(rowname,percentage),y=percentage)) +
+      geom_point() +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      # labs(title = 'Anticodon usage') +
+      xlab(label = 'Anticodon') +
+      ylab(label = 'Percentage of anticodons used in all tRNA genes') +
+      # theme(axis.text.x = element_text(size = 12)) +
+      # theme(axis.text.y = element_text(size = 12)) +
+      # theme(title = element_text(size = 16)) +
+      # scale_color_manual(values = lacroix_palette("Apricot", n = 15, type = "continuous")) +
+      ggtitle(paste("Percentage of anticodons used in",x, 'tRNA genes'))
+}
+
+Dana.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dana)
+Dazt.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dazt)
+Dere.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dere)
+Dhyd.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dhyd)
+Dmel.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dmel)
+Dmoj.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dmoj)
+Dnov.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dnov)
+Dore.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dore)
+Dper.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dper)
+Dpse.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dpse)
+Dsim.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dsim)
+Dvir.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dvir)
+Dwil.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dwil)
+Dyak.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Dyak)
+Sleb.anticodonScatterPlot <- scatterPlotsForAnticodonPercentages(Sleb)
+
+
+saveAnticodonScatterPlots <- function(scatter) {
+  x <- deparse(substitute(scatter))
+  ggsave(scatter, filename = paste0('/Users/dylansosa/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/tRNA figures/individual_percentage_of_anticodons_plots/',x,'.png'))
+}
+
+saveAnticodonScatterPlots(Dana.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dazt.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dere.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dhyd.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dmel.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dmoj.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dnov.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dore.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dper.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dpse.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dsim.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dvir.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dwil.anticodonScatterPlot)
+saveAnticodonScatterPlots(Dyak.anticodonScatterPlot)
+saveAnticodonScatterPlots(Sleb.anticodonScatterPlot)
+
+
+allSpeciesScatterPlot <- 
+  grid.arrange(Dmel.anticodonScatterPlot,
+             Dsim.anticodonScatterPlot,
+             Dore.anticodonScatterPlot,
+             Dere.anticodonScatterPlot,
+             Dyak.anticodonScatterPlot,
+             Dana.anticodonScatterPlot,
+             Dpse.anticodonScatterPlot,
+             Dper.anticodonScatterPlot,
+             Dazt.anticodonScatterPlot,
+             Dwil.anticodonScatterPlot,
+             Dvir.anticodonScatterPlot,
+             Dnov.anticodonScatterPlot,
+             Dmoj.anticodonScatterPlot,
+             Dhyd.anticodonScatterPlot,
+             Sleb.anticodonScatterPlot,
+             ncol=5
+             )
+ggsave(allSpeciesScatterPlot, filename = paste0('/Users/dylansosa/Documents/UChicago/Long Lab/Projects/Thesis Projects/prediciton_essential_gene_evolution/code/tRNA_evolution_pacbio/figures/tRNA figures/total anticodon scatter plot/allSpeciesScatterPlot.png'),width = 40,height = 15)
+# maybe I should not order the points based on percentage? It would be easier to compare them if not?
+
 save.image(f = 'tRNA_evolution.Rdata')
 load('tRNA_evolution.Rdata')
